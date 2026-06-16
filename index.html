@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday, Emily ✦</title>
+    <!-- 引入高定感英文字体：Cormorant Garamond (诗意优雅) 与 Jost (现代极简) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <!-- 引入高性能彩带特效库 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --midnight: #050212;
+            --indigo-deep: #0b0726;
+            --gold-shimmer: #e7c27d;
+            --gold-bright: #fbbf24;
+            --diamond-glow: rgba(234, 243, 255, 0.9);
+            --text-soft: #94a3b8;
+        }
+
+        /* 基础复位与背景设计 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at center, var(--indigo-deep) 0%, var(--midnight) 100%);
+            color: #f8fafc;
+            font-family: 'Jost', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        /* 背景流星与微弱星光 */
+        .stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 场景控制：渐隐渐现 */
+        .scene {
+            position: absolute;
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95) translateY(10px);
+            transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), 
+                        transform 1.2s cubic-bezier(0.25, 1, 0.5, 1),
+                        visibility 1.2s;
+            z-index: 5;
+            text-align: center;
+        }
+
+        .scene.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+        }
+
+        /* --- 第一幕：纯净线条钻石 --- */
+        #scene-1 {
+            cursor: pointer;
+        }
+
+        .diamond-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diamond-svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--gold-shimmer);
+            stroke-width: 1;
+            fill: none;
+            filter: drop-shadow(0 0 12px rgba(231, 194, 125, 0.4));
+            animation: floatAndPulse 4s ease-in-out infinite;
+            transition: all 0.4s ease;
+        }
+
+        #scene-1:hover .diamond-svg {
+            filter: drop-shadow(0 0 25px var(--gold-bright));
+            transform: scale(1.05);
+        }
+
+        @keyframes floatAndPulse {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+            50% { transform: translateY(-8px) scale(1.03); opacity: 1; }
+        }
+
+        /* --- 第二幕：极简艺术蛋糕 --- */
+        #scene-2 {
+            cursor: pointer;
+        }
+
+        .cake-art {
+            position: relative;
+            width: 140px;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+        }
+
+        /* 蜡烛烛体 */
+        .candle-body {
+            width: 6px;
+            height: 45px;
+            background: linear-gradient(to top, #e2e8f0, #ffffff);
+            border-radius: 3px;
+            position: relative;
+            z-index: 2;
+            margin-bottom: -4px;
+        }
+
+        /* 会动的火焰 */
+        .candle-flame {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 24px;
+            background: radial-gradient(circle at bottom, #ffe066 20%, #f97316 100%);
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 15px #f59e0b, 0 0 30px #d97706, 0 0 45px rgba(245, 158, 11, 0.3);
+            animation: flickerFlame 0.7s infinite alternate ease-in-out;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .candle-flame.blown-out {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-10px) scale(0);
+        }
+
+        @keyframes flickerFlame {
+            0% { transform: translateX(-50%) scale(1) rotate(-1deg); }
+            100% { transform: translateX(-50%) scale(1.15) rotate(1.5deg); }
+        }
+
+        /* 蛋糕主体 */
+        .cake-plate {
+            width: 120px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        .cake-plate::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 6px;
+            background: var(--gold-shimmer);
+            opacity: 0.6;
+            border-radius: 6px 6px 0 0;
+        }
+
+        /* 互动文字提示 */
+        .interaction-hint {
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            margin-top: 10px;
+            font-weight: 300;
+            animation: pulseHint 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.4; transform: scale(0.98); }
+            50% { opacity: 0.9; transform: scale(1); }
+        }
+
+        /* --- 第三幕：毛玻璃庆生卡片 --- */
+        .shimmer-card {
+            background: rgba(10, 6, 31, 0.6);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 50px 40px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 
+                        0 0 50px rgba(231, 194, 125, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 泰勒 Midnights 经典专封 */
+        .album-art {
+            width: 180px;
+            height: 180px;
+            border-radius: 12px;
+            margin-bottom: 35px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8),
+                        0 0 30px rgba(255,255,255,0.05);
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: transform 0.5s ease;
+        }
+
+        .album-art:hover {
+            transform: scale(1.04) rotate(1deg);
+        }
+
+        /* 主祝福语标题 */
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #ffffff 0%, var(--gold-shimmer) 50%, #fef08a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 歌词排版 */
+        .lyric-box {
+            position: relative;
+            padding: 0 10px;
+            margin-bottom: 15px;
+        }
+
+        .lyric {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.45rem;
+            line-height: 1.8;
+            color: #f1f5f9;
+            letter-spacing: 0.5px;
+        }
+
+        .lyric-highlight {
+            color: var(--gold-shimmer);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(231, 194, 125, 0.2);
+        }
+
+        .credit {
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            margin-top: 15px;
+            font-weight: 400;
+        }
+
+        /* 触碰闪烁彩屑微动效 */
+        .interactive-spark {
+            position: absolute;
+            pointer-events: none;
+            background: var(--gold-shimmer);
+            border-radius: 50%;
+            z-index: 99;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 柔和星光背景层 -->
+    <div class="stars-container" id="stars"></div>
+
+    <!-- 第一幕：极简艺术钻石 -->
+    <div id="scene-1" class="scene active" onclick="transitionToScene2()">
+        <div class="diamond-container">
+            <svg class="diamond-svg" viewBox="0 0 24 24">
+                <path d="M6 3H18L22 9L12 22L2 9L6 3Z" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M2 9H22" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M12 22V9" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M6 3L12 9L18 3" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <p class="interaction-hint" style="margin-top: 40px;">Tap the diamond</p>
+    </div>
+
+    <!-- 第二幕：温暖蜡烛生日蛋糕 -->
+    <div id="scene-2" class="scene">
+        <div class="cake-art" onclick="extinguishAndReveal()">
+            <div class="candle-body">
+                <div class="candle-flame" id="flame"></div>
+            </div>
+            <div class="cake-plate"></div>
+        </div>
+        <p class="interaction-hint">Make a wish and blow out the candle</p>
+    </div>
+
+    <!-- 第三幕：泰勒《Midnights》专辑、祝福与歌词 -->
+    <div id="scene-3" class="scene">
+        <div class="shimmer-card">
+            <!-- 泰勒斯威夫特 Midnights 专辑封面 -->
+            <img src="https://upload.wikimedia.org/wikipedia/en/9/9f/Midnights_-_Taylor_Swift.png" alt="Midnights Album Art" class="album-art">
+            
+            <h1>Happy Birthday, Emily!</h1>
+            
+            <div class="lyric-box">
+                <p class="lyric">
+                    "When I walk in the room I can still make the whole place <span class="lyric-highlight">shimmer</span>"
+                </p>
+            </div>
+            <p class="credit">— Taylor Swift</p>
+        </div>
+    </div>
+
+    <script>
+        // 初始化一些微小的漂浮星光背景
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 35; i++) {
+            const star = document.createElement('div');
+            star.style.position = 'absolute';
+            star.style.width = Math.random() * 2 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.background = '#ffffff';
+            star.style.borderRadius = '50%';
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.opacity = Math.random() * 0.5 + 0.2;
+            star.style.animation = `pulseHint ${Math.random() * 3 + 2}s infinite ease-in-out`;
+            starsContainer.appendChild(star);
+        }
+
+        // 切换到第二幕
+        function transitionToScene2() {
+            // 点击第一幕钻石时，产生一次优雅的高级碎金纸屑爆破
+            createSparkleBurst(window.innerWidth / 2, window.innerHeight / 2, 25);
+            
+            document.getElementById('scene-1').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('scene-2').classList.add('active');
+            }, 800);
+        }
+
+        // 吹灭蜡烛过渡到最后一幕
+        let isBlownOut = false;
+        function extinguishAndReveal() {
+            if (isBlownOut) return;
+            isBlownOut = true;
+
+            const flame = document.getElementById('flame');
+            flame.classList.add('blown-out');
+
+            // 完美的过渡顿挫感
+            setTimeout(() => {
+                document.getElementById('scene-2').classList.remove('active');
+                
+                setTimeout(() => {
+                    document.getElementById('scene-3').classList.add('active');
+                    // 爆发浪漫而奢华的星河彩带
+                    launchUltimateShimmer();
+                }, 800);
+            }, 700);
+        }
+
+        // 香槟金与星河银彩带粒子雨效果
+        function launchUltimateShimmer() {
+            const duration = 5 * 1000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                // 每次喷射使用香槟金、玫瑰金、白金色和微蓝钻光
+                const colors = ['#fef08a', '#e7c27d', '#f8fafc', '#a5b4fc', '#f43f5e'];
+                
+                confetti({
+                    particleCount: 4,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0, y: 0.8 },
+                    colors: colors
+                });
+                confetti({
+                    particleCount: 4,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1, y: 0.8 },
+                    colors: colors
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        // 辅助互动：轻点屏幕产生的微小火星散落动效
+        function createSparkleBurst(x, y, count = 12) {
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'interactive-spark';
+                
+                const size = Math.random() * 4 + 2;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = x + 'px';
+                p.style.top = y + 'px';
+                
+                // 随机化移动轨迹
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 80 + 30;
+                const destinationX = Math.cos(angle) * distance;
+                const destinationY = Math.sin(angle) * distance;
+
+                document.body.appendChild(p);
+
+                p.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${destinationX}px, ${destinationY}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 800 + Math.random() * 400,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)'
+                }).onfinish = () => p.remove();
+            }
+        }
+
+        // 全局屏幕点击反应
+        window.addEventListener('click', (e) => {
+            // 如果点击的是可互动对象，跳过普通星花
+            if (e.target.closest('.diamond-container') || e.target.closest('.cake-art')) return;
+            createSparkleBurst(e.clientX, e.clientY, 6);
+        });
+    </script>
+</body>
+</html>
